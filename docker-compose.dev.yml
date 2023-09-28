@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  redis:
+    env_file:
+      - ./app/.env.dev
+    image: redis:7-alpine
+    ports:
+    - "6379:6379"

@@ -11,22 +11,25 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
+if not load_dotenv('.env.dev'):
+    load_dotenv('.env.prod')
+    
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_k!g0+5vqwf(if(kj++cit+ar+exr$2r+jk=ra&hwv7g59s^0r'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG")
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [os.getenv("ALLOWED_HOST")]
 
 # Application definition
 
@@ -130,8 +133,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REDIS_HOST='127.0.0.1' # USE env files
-REDIS_PORT=6379
+REDIS_HOST=os.getenv("REDIS_HOST")
+REDIS_PORT=os.getenv("REDIS_PORT")
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
