@@ -32,6 +32,13 @@ export function Navbar() {
                     <>
                         <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
                             <div className="relative flex h-16 items-center justify-between">
+                                <div className="flex-shrink-0">
+                                    <img
+                                        className="h-8 w-8"
+                                        src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+                                        alt="Your Company"
+                                    />
+                                </div>
                                 <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                                     {/* Mobile menu button*/}
                                     <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
@@ -47,38 +54,38 @@ export function Navbar() {
                                 <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                                     <div className="hidden sm:ml-6 sm:block">
                                         <div className="flex space-x-4">
-                                            { user && (
-                                            <>
-                                                <a
-                                                    key="Users"
-                                                    href="/"
-                                                    className="text-gray-300 hover:bg-gray-700 hover:text-white 
+                                            {user && (
+                                                <>
+                                                    <a
+                                                        key={"Users"}
+                                                        href="/"
+                                                        className="text-gray-300 hover:bg-gray-700 hover:text-white 
                                                                         rounded-md px-3 py-2 text-sm font-medium"
-                                                    aria-current={'page'}
-                                                >
-                                                    Users
-                                                </a>
-                                                <a
-                                                    key="Active Conversations"
-                                                    href="/conversations"
-                                                    className="text-gray-300 hover:bg-gray-700 hover:text-white 
+                                                        aria-current={'page'}
+                                                    >
+                                                        Users
+                                                    </a>
+                                                    <a
+                                                        key={"Active Conversations"}
+                                                        href="/conversations"
+                                                        className="text-gray-300 hover:bg-gray-700 hover:text-white 
                                                                         rounded-md px-3 py-2 text-sm font-medium"
-                                                    aria-current={'page'}
-                                                >
-                                                    Active conversations 
-                                                    {
-                                                        unreadMessageCount > 0 && (
-                                                            <span className="ml-1 inline-flex items-center justify-center rounded-full">
-                                                                {unreadMessageCount}
-                                                            </span>
-                                                        )
-                                                    }
-                                                </a>
-                                            </>
+                                                        aria-current={'page'}
+                                                    >
+                                                        Active conversations
+                                                        {
+                                                            unreadMessageCount > 0 && (
+                                                                <span className="ml-1 inline-flex items-center justify-center rounded-full">
+                                                                    ({unreadMessageCount})
+                                                                </span>
+                                                            )
+                                                        }
+                                                    </a>
+                                                </>
                                             )}
                                             {!user && (
                                                 <a
-                                                    key="login"
+                                                    key={"login"}
                                                     href="/login"
                                                     className="text-gray-300 hover:bg-gray-700 hover:text-white 
                                                                         rounded-md px-3 py-2 text-sm font-medium"
@@ -94,6 +101,7 @@ export function Navbar() {
                                 {user && (
                                     <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                                         <button
+                                        
                                             type="button"
                                             className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                                             onClick={navigateConversations}
@@ -175,7 +183,7 @@ export function Navbar() {
                 )}
 
             </Disclosure>
-            <div className="">
+            <div className="mx-auto max-w-6xl py-6 sm:px-6 lg:px-8">
                 <Outlet />
             </div>
         </>

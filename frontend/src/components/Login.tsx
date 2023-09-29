@@ -1,77 +1,88 @@
 import { useFormik } from "formik";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
- 
+
 import { AuthContext } from "../contexts/AuthContext";
- 
+
 export function Login() {
-  const navigate = useNavigate();
-  const [error, setError] = useState(null);
-  const { user, login } = useContext(AuthContext);
- 
-  const formik = useFormik({
-    initialValues: {
-      username: "",
-      password: ""
-    },
-    onSubmit: async (values, { setSubmitting }) => {
-      setSubmitting(true);
-      const { username, password } = values;
-      const res = await login(username, password);
-      if (res.error || res.data) {
-        if (res.data && res.data.detail) {
-          setError(res.data.detail);
+    const navigate = useNavigate();
+    const [error, setError] = useState<any | null>(null);
+    const { user, login } = useContext(AuthContext);
+
+    const formik = useFormik({
+        initialValues: {
+            username: "",
+            password: ""
+        },
+        onSubmit: async (values, { setSubmitting }) => {
+            setSubmitting(true);
+            const { username, password } = values;
+            const res = await login(username, password);
+            if (res.data) {
+                if (res.data) {
+                    setError(res.data);
+                }
+            } else {
+                navigate("/");
+            }
+            setSubmitting(false);
         }
-      } else {
-        navigate("/");
-      }
-      setSubmitting(false);
-    }
-  });
- 
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user]);
- 
-  return (
-    <div>
-      <div className="w-full max-w-md space-y-8">
+    });
+
+    useEffect(() => {
+        if (user) {
+            navigate("/");
+        }
+    }, [user]);
+
+    return (
         <div>
-          <h1 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h1>
+            <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+                <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+                    <h1 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h1>
+                </div>
+                <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                    <form className="space-y-6" onSubmit={formik.handleSubmit}>
+                        <div>
+                            {error?.non_field_errors && <div className="text-red-600">{error?.non_field_errors}</div>}
+                            <label className="block text-sm font-medium leading-6 text-gray-900">
+                                Login:
+                            </label>
+                            {error?.username && <div className="text-red-600">{error?.username}</div>}
+                            <div className="mt-2">
+                                <input
+                                    value={formik.values.username}
+                                    onChange={formik.handleChange}
+                                    type="text"
+                                    name="username"
+                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                            </div>
+                        </div>
+                        <div >
+                            <label className="block text-sm font-medium leading-6 text-gray-900">
+                                Password
+                            </label>
+                            {error?.password && <div className="text-red-600">{error?.password}</div>}
+                            <div className="mt-2">
+                                <input
+                                    value={formik.values.password}
+                                    onChange={formik.handleChange}
+                                    type="password"
+                                    name="password"
+                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                            </div>
+                        </div>
+                        <button
+                            type="submit"
+                            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >
+                            {formik.isSubmitting ? "Signing in..." : "Sign in"}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
- 
-        <form className="mt-8 space-y-6" onSubmit={formik.handleSubmit}>
-          {error && <div>{JSON.stringify(error)}</div>}
- 
-          <div className="rounded-md">
-            <input
-              value={formik.values.username}
-              onChange={formik.handleChange}
-              type="text"
-              name="username"
-              placeholder="Username"
-              className="text-gray-500 placeholder-black-300 focus:ring-gray-500 focus:border-black-100 block w-full pr-10 focus:outline-none sm:text-sm rounded-md border-cyan-950"
-            />
-            <input
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              type="password"
-              name="password"
-              className="border-gray-300 text-gray-900 placeholder-black-300 focus:ring-gray-500 focus:border-gray-500 block w-full pr-10 focus:outline-none sm:text-sm rounded-md"
-              placeholder="Password"
-            />
-          </div>
- 
-          <button
-            type="submit"
-            className="group relative flex w-full justify-center rounded-md border border-transparent bg-sky-600 py-2 px-4 text-sm font-medium text-white hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
-          >
-            {formik.isSubmitting ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+    );
 }

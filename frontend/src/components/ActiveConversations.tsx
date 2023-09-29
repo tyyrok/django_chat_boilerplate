@@ -15,13 +15,15 @@ export function ActiveConversations() {
           Authorization: `Token ${user?.token}`
         }
       });
+      console.log(res.headers)
       const data = await res.json();
+      console.log(data)
       setActiveConversations(data);
     }
     fetchUsers();
   }, [user]);
  
-  function createConversationName(username: string) {
+  function createConversationName(username: string) {   
     const namesAlph = [user?.username, username].sort();
     return `${namesAlph[0]}__${namesAlph[1]}`;
   }
@@ -35,6 +37,7 @@ export function ActiveConversations() {
   return (
     <div>
       {conversations.map((c) => (
+
         <Link
           to={`/chats/${createConversationName(c.other_user.username)}`}
           key={c.other_user.username}

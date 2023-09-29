@@ -4,6 +4,8 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, UpdateModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
@@ -14,21 +16,24 @@ User = get_user_model()
 
 # Create your views here.
 class UserViewSet(RetrieveModelMixin, ListModelMixin, UpdateModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
     queryset = User.objects.all()
     lookup_field = "username"
 
     @action(detail=False)
-    def all(self, request):
+    def all(self, request): 
         serializer = UserSerializer(
             User.objects.all(), many=True, context={"request": request}
         )
         return Response(status=status.HTTP_200_OK, data=serializer.data)
     
 class ConversationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = ConversationSerializer
     queryset = Conversation.objects.none()
     lookup_field = "name"
+    
     
     def get_queryset(self):
         queryset = Conversation.objects.filter(
@@ -40,6 +45,7 @@ class ConversationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
         return {"request": self.request, "user": self.request.user}
     
 class MessageViewSet(ListModelMixin, GenericViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = MessageSerializer
     queryset = Message.objects.none()
     pagination_class = MessagePagination

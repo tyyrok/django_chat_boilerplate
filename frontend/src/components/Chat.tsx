@@ -211,11 +211,11 @@ export function Chat() {
       }
     
       <p>{welcomeMessage}</p>
-      <div className="flex w-full items-center justify-between border border-gray-200 p-3">
+      <div className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3">
         <input
           type="text"
-          placeholder="Message"
-          className="block w-full rounded-full bg-gray-100 py-2 outline-none focus:text-gray-700"
+          placeholder="   Message"
+          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
           name="message"
           value={message}
           onChange={handleChangeMessage}
@@ -223,14 +223,14 @@ export function Chat() {
           ref={inputReference}
           maxLength={511}
         />
-        <button className="ml-3 bg-gray-300 px-3 py-1" onClick={handleSubmit}>
+        <button className="ml-3 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 px-3 py-1" onClick={handleSubmit}>
           Submit
         </button>
       </div>
       <hr />
       <div
         id="scrollableDiv"
-        className="h-[10rem] mt-3 flex flex-col-reverse relative w-full border border-gray-200 overflow-y-auto p-6"
+        className="h-[20rem] mt-3 flex flex-col-reverse relative w-full rounded-md border border-gray-200 p-6 overflow-y-scroll"
       >
         <div>
           {/* Put the scroll bar always on the bottom */}
