@@ -68,17 +68,16 @@ export function Chat() {
     },
     onOpen: () => {
       console.log("Connected!");
-      console.log(user);
     },
     onClose: () => {
       console.log("Disconnected!");
     },
     onMessage: (e) => {
-      console.log(user)
       const data = JSON.parse(e.data);
       switch (data.type) {
         case "welcome_message":
           setWelcomeMessage(data.message);
+          console.log(data.message);
           break;
         case "chat_message_echo":
           setMessageHistory((prev:any) => [data.message, ...prev]);

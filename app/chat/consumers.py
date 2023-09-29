@@ -51,6 +51,31 @@ class NotificationConsumer(JsonWebsocketConsumer):
         
     def unread_count(self, event):
         self.send_json(event)
+        
+class GroupChatConsumer(JsonWebsocketConsumer):
+    """
+    This consumer is used to implement group chat
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_name = None
+        self.user = None
+        
+    @classmethod
+    def encode_json(cls, content):
+        return json.dumps(content, cls=UUIDEncoder)
+    
+    def connect(self):
+        self.user = self.scope['user']
+        if not self.user.is_authenticated:
+            return
+        self.accept()
+    
+    
+    
+    def disconnect(self, code):
+        return super().disconnect(code)
 
 class ChatConsumer(JsonWebsocketConsumer):
     """
@@ -78,6 +103,13 @@ class ChatConsumer(JsonWebsocketConsumer):
             self.conversation_name,
             self.channel_name,
         )
+        if created:
+            self.send_json(
+                {
+                    "type": "welcome_message",
+                    "message": "You've started a new chat",
+                }
+            )
         self.send_json(
             {
                 "type": "online_user_list",

@@ -15,9 +15,7 @@ export function ActiveConversations() {
           Authorization: `Token ${user?.token}`
         }
       });
-      console.log(res.headers)
       const data = await res.json();
-      console.log(data)
       setActiveConversations(data);
     }
     fetchUsers();

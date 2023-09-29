@@ -47,4 +47,29 @@ class Message(models.Model):
     
     def __str__(self) -> str:
         return f"From {self.from_user.username} to {self.to_user.username}: {self.content} [{self.timestamp}]"
-        
+    
+class GroupMessage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    conversation = models.ForeignKey(
+        Conversation, on_delete=models.CASCADE, related_name="group_messages"
+    )
+    from_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="messages_from_user"
+    )
+    content = models.CharField(max_length=512)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    read = models.ManyToManyField(to=User, blank=True)
+    
+    def __str__(self) -> str:
+        return f"Group conversation with {self.from_user} : {self.content} [{self.timestamp}]"
+    
+    def read_message(self, user):
+        if not self.get_read_status(user):
+            self.read.add(user)
+    
+    def get_read_status(self, user):
+        if self.from_user == user:
+            return True
+        if len(self.read.filter(id=user.id)) == 0:
+            return False
+        return True
