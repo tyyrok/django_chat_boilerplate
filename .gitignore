@@ -3,3 +3,4 @@ env/
 *.py[cod]
 *$py.class
 db.sqlite3
+frontend/node_modules/

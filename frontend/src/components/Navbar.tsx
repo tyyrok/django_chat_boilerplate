@@ -4,7 +4,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import { NotificationContext } from "../contexts/NotificationContext";
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const navigation = [
     { name: 'Users', href: '/', current: true },
@@ -25,6 +25,7 @@ export function Navbar() {
     };
     const { user, logout } = useContext(AuthContext);
     const { unreadMessageCount } = useContext(NotificationContext);
+    const { unreadGroupMessageCount } = useContext(NotificationContext);
     return (
         <>
             <Disclosure as="nav" className="bg-gray-800">
@@ -81,6 +82,22 @@ export function Navbar() {
                                                             )
                                                         }
                                                     </a>
+                                                    <a
+                                                        key={"Group Conversations"}
+                                                        href="/group-conversations"
+                                                        className="text-gray-300 hover:bg-gray-700 hover:text-white 
+                                                                        rounded-md px-3 py-2 text-sm font-medium"
+                                                        aria-current={'page'}
+                                                    >
+                                                        Group conversations
+                                                        {
+                                                            unreadGroupMessageCount > 0 && (
+                                                                <span className="ml-1 inline-flex items-center justify-center rounded-full">
+                                                                    ({unreadGroupMessageCount})
+                                                                </span>
+                                                            )
+                                                        }
+                                                    </a>
                                                 </>
                                             )}
                                             {!user && (
@@ -100,24 +117,6 @@ export function Navbar() {
                                 </div>
                                 {user && (
                                     <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                                        <button
-                                        
-                                            type="button"
-                                            className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                                            onClick={navigateConversations}
-                                        >
-                                            <span className="absolute -inset-1.5" />
-                                            <span className="sr-only">View notifications</span>
-                                            <BellIcon className="h-6 w-6" aria-hidden="true" />
-                                            {
-                                                unreadMessageCount > 0 && (
-                                                    <>
-                                                        {unreadMessageCount}
-                                                    </>
-                                                )
-                                            }
-                                        </button>
-
                                         <Menu as="div" className="relative ml-3">
                                             <div>
                                                 <Menu.Button className="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">

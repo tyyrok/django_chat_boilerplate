@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import Message, Conversation
+from .models import Message, Conversation, GroupMessage
 
 User = get_user_model()
 
@@ -57,5 +57,45 @@ class ConversationSerializer(serializers.ModelSerializer):
         for username in usernames:
             if username != self.context['user'].username:
                 other_user = User.objects.get(username=username)
-                print("there")
                 return UserSerializer(other_user, context=context).data
+            
+class GroupMessageSerializer(serializers.ModelSerializer):
+    from_user = serializers.SerializerMethodField()
+    group_conversation = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = GroupMessage
+        fields = (
+            "id",
+            "group_conversation",
+            "from_user",
+            "content",
+            "timestamp",
+            "read",
+        )
+    def get_group_conversation(self, obj):
+        return str(obj.group_conversation.id)
+    
+    def get_from_user(self, obj):
+        return UserSerializer(obj.from_user).data
+
+class GroupConversationSerializer(ConversationSerializer):
+    members = serializers.SerializerMethodField()
+    admin = serializers.SerializerMethodField()
+    class Meta:
+        model = Conversation
+        fields = ("id", "name", "last_message", "members", "admin")
+    
+    def get_last_message(self, obj):
+        messages = obj.group_messages.all().order_by("-timestamp")
+        if not messages.exists():
+            return None
+        message = messages[0]
+        return GroupMessageSerializer(message).data  
+    
+    def get_members(self, obj):
+        members = obj.members.all()
+        return UserSerializer(members, many=True).data   
+    
+    def get_admin(self, obj):
+        return UserSerializer(obj.admin).data
