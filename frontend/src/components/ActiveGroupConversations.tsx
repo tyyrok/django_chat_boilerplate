@@ -51,7 +51,7 @@ export function ActiveGroupConversations() {
                                 <div className="flex justify-between">
                                     <p className="text-gray-700">{c.last_message?.content}</p>
                                     <p className="text-gray-700">{formatMessageTimestamp(c.last_message?.timestamp)}</p>
-                                </div>
+                                </div> 
                             </div>
                         </Link>
                 ))}
@@ -62,5 +62,5 @@ export function ActiveGroupConversations() {
 
 export function getUserFriendlyChatName(name: string) {
     const list = name.split('__');
-    return `Group chat with ${list[1]} (${list[2]})`
+    return `Group chat with ${list[1]} #${list[2]}`
 }

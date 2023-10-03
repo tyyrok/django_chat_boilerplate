@@ -18,6 +18,10 @@ interface UserResponse {
     name: string;
     url: string;
 }
+interface MemberResponse {
+    username: string;
+    first_name: string;
+}
 
 export function GroupChat() {
     const [welcomeMessage, setWelcomeMessage] = useState("");
@@ -28,7 +32,7 @@ export function GroupChat() {
     const [page, setPage] = useState(2);
     const [hasMoreMessages, setHasMoreMessages] = useState(false);
     const [participants, setParticipants] = useState<string[]>([]);
-    const [members, setMembers] = useState<string[]>([]);
+    const [members, setMembers] = useState<MemberResponse[]>([]);
     const [conversation, setConversation] = useState<GroupConversationModel | null>(null);
     const [meTyping, setMeTyping] = useState(false);
     const timeout = useRef<any>();
@@ -48,6 +52,10 @@ export function GroupChat() {
         if (event.user !== user!.username) {
             setTyping(event.typing);
         }
+    }
+    function updateMembers(event: []) {
+        const members = event;
+        setMembers(event);
     }
 
     function timeoutFunction() {
@@ -124,8 +132,8 @@ export function GroupChat() {
                 case "online_user_list":
                     setParticipants(data.users);
                     break;
-                case "members_list_with_status":
-                    setMembers(data.users);
+                case "members_list":
+                    updateMembers(data.users);
                     break;
                 case "typing":
                     updateTyping(data);
@@ -262,44 +270,89 @@ export function GroupChat() {
 
             <p>{welcomeMessage}</p>
             {user?.username == conversation?.admin.username &&
-                <Menu as="div" className="relative inline-block text-right">
-                    <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-5 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-                        Add member
-                        <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-                    </Menu.Button>
+                <>
+                    <Menu as="div" className="relative inline-block text-right mr-2">
+                        <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-5 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            Add member
+                            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </Menu.Button>
 
-                    <Transition
-                        as={Fragment}
-                        enter="transition ease-out duration-100"
-                        enterFrom="transform opacity-0 scale-95"
-                        enterTo="transform opacity-100 scale-100"
-                        leave="transition ease-in duration-75"
-                        leaveFrom="transform opacity-100 scale-100"
-                        leaveTo="transform opacity-0 scale-95"
-                    >
-                        <Menu.Items className="absolute right-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                            <div className="py-1">
-                                {users.filter((u) => u.username != user?.username)
-                                    .map((u) => (
-                                        <Menu.Item key={u.username + 2}>
-                                            {({ active }) => (
-                                                <a
-                                                    key={u.username + 1}
-                                                    onClick={() => addMember(u.username)}
-                                                    className={classNames(
-                                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                                                        'block px-4 py-2 text-sm'
-                                                    )}
-                                                >
-                                                    {u.username}
-                                                </a>
-                                            )}
-                                        </Menu.Item>
-                                    ))}
-                            </div>
-                        </Menu.Items>
-                    </Transition>
-                </Menu>
+                        <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                        >
+                            <Menu.Items className="absolute right-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                    {users.filter((u) => {
+
+                                        if ((u.username != user?.username) && !(members.some((elem) => elem.username == u.username))) {
+                                            return u.username
+                                        }
+                                    })
+                                        .map((u) => (
+                                            <Menu.Item key={u.username + 2}>
+                                                {({ active }) => (
+                                                    <a
+                                                        key={u.username + 1}
+                                                        onClick={() => addMember(u.username)}
+                                                        className={classNames(
+                                                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                                            'block px-4 py-2 text-sm'
+                                                        )}
+                                                    >
+                                                        {u.username}
+                                                    </a>
+                                                )}
+                                            </Menu.Item>
+                                        ))}
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
+                    <Menu as="div" className="relative inline-block text-right">
+                        <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-5 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                            Remove member
+                            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+                        </Menu.Button>
+
+                        <Transition
+                            as={Fragment}
+                            enter="transition ease-out duration-100"
+                            enterFrom="transform opacity-0 scale-95"
+                            enterTo="transform opacity-100 scale-100"
+                            leave="transition ease-in duration-75"
+                            leaveFrom="transform opacity-100 scale-100"
+                            leaveTo="transform opacity-0 scale-95"
+                        >
+                            <Menu.Items className="absolute right-0 z-10 mt-2 w-30 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div className="py-1">
+                                    {members.filter((u) => u.username != user?.username)
+                                        .map((u) => (
+                                            <Menu.Item key={u.username + 2}>
+                                                {({ active }) => (
+                                                    <a
+                                                        key={u.username + 1}
+                                                        onClick={() => removeMember(u.username)}
+                                                        className={classNames(
+                                                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                                            'block px-4 py-2 text-sm'
+                                                        )}
+                                                    >
+                                                        {u.username}
+                                                    </a>
+                                                )}
+                                            </Menu.Item>
+                                        ))}
+                                </div>
+                            </Menu.Items>
+                        </Transition>
+                    </Menu>
+                </>
             }
             <div className="flex w-full items-center justify-between rounded-md border border-gray-200 p-3">
                 <input
@@ -318,25 +371,52 @@ export function GroupChat() {
                 </button>
             </div>
             <hr />
-            <div
-                id="scrollableDiv"
-                className="h-[20rem] mt-3 flex flex-col-reverse relative w-full rounded-md border border-gray-200 p-6 overflow-y-scroll"
-            >
-                <div>
-                    {/* Put the scroll bar always on the bottom */}
-                    <InfiniteScroll
-                        dataLength={messageHistory?.length}
-                        next={fetchMessages}
-                        className="flex flex-col-reverse" // To put endMessage and loader to the top
-                        inverse={true}
-                        hasMore={hasMoreMessages}
-                        loader={<ChatLoader />}
-                        scrollableTarget="scrollableDiv"
-                    >
-                        {messageHistory?.map((message: GroupMessageModel) => (
-                            <GroupMessage key={message?.id} message={message} />
+            <div className="flex flex-row h-[20rem]">
+                <div className="basis-2/12 pl-3 mt-3 rounded-md border border-gray-200 p-2 overflow-y-scroll">
+                    <p>Users:</p>
+                    <div className="py1 decoration-solid underline text-green-700">
+                        {user?.username}
+                    </div>
+                    <p className="mt-2">Online:</p>
+                    {participants.filter((u) => u != user?.username)
+                        .map((u) => (
+                            <div key={u+3} className="py1 text-green-600">
+                                {u}
+                            </div>
                         ))}
-                    </InfiniteScroll>
+                    <p className="mt-2">Offline:</p>
+                    {members.filter((u) => {
+                        if (!(participants.some((elem) => elem == u.username))) {
+                            return u.username
+                        }
+                    })
+                        .map((u) => (
+                            <div key={u.username + 4} className="py1">
+                                {u.username}
+                            </div>
+                        ))}
+
+                </div>
+                <div
+                    id="scrollableDiv"
+                    className="basis-10/12 mt-3 flex flex-col-reverse w-full rounded-md border border-gray-200 p-6 overflow-y-scroll"
+                >
+                    <div>
+                        {/* Put the scroll bar always on the bottom */}
+                        <InfiniteScroll
+                            dataLength={messageHistory?.length}
+                            next={fetchMessages}
+                            className="flex flex-col-reverse" // To put endMessage and loader to the top
+                            inverse={true}
+                            hasMore={hasMoreMessages}
+                            loader={<ChatLoader />}
+                            scrollableTarget="scrollableDiv"
+                        >
+                            {messageHistory?.map((message: GroupMessageModel) => (
+                                <GroupMessage key={message?.id} message={message} />
+                            ))}
+                        </InfiniteScroll>
+                    </div>
                 </div>
             </div>
         </div>

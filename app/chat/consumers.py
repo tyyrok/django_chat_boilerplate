@@ -4,7 +4,7 @@ from asgiref.sync import async_to_sync
 from chat.models import Conversation, Message, GroupMessage, GroupConversation
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from chat.serializers import MessageSerializer, GroupMessageSerializer
+from chat.serializers import MessageSerializer, GroupMessageSerializer, UserSerializer
 import json
 from uuid import UUID
 
@@ -17,6 +17,7 @@ class UUIDEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
     
 class NotificationConsumer(JsonWebsocketConsumer):
+    """Every user notification goes through this consumer"""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = None
@@ -44,7 +45,6 @@ class NotificationConsumer(JsonWebsocketConsumer):
                                     .exclude(read=self.user)
                                     .count()
         )
-        print(unread_group_count)
         self.send_json(
             {
                 "type": "unread_group_count",
@@ -73,7 +73,7 @@ class NotificationConsumer(JsonWebsocketConsumer):
         
 class GroupChatConsumer(JsonWebsocketConsumer):
     """
-    This consumer is used to implement group chat
+    This consumer is used to implement group chat functional
     """
     
     def __init__(self, *args, **kwargs):
@@ -89,6 +89,16 @@ class GroupChatConsumer(JsonWebsocketConsumer):
         group_conversation_count = GroupConversation.objects.filter(admin=self.user).count()
         return group_conversation_count + 1
     
+    def send_members(self):
+        """Send members of group chat to frontend"""
+        members = self.conversation.members
+        self.send_json(
+            {
+                "type": "members_list",
+                "users": UserSerializer(members, many=True).data,
+            }
+        )
+    
     def connect(self):
         self.user = self.scope['user']
         if not self.user.is_authenticated:
@@ -97,6 +107,7 @@ class GroupChatConsumer(JsonWebsocketConsumer):
         elif self.scope['url_route']['kwargs']['group_chat_name'] == 'undefined':
             self.close()
             return 
+        
         self.accept()
         if self.scope['url_route']['kwargs']['group_chat_name'] == 'new':           
             self.conversation_name = f"group_chat_with__{self.user}__{self.get_conversation_id()}"
@@ -146,16 +157,20 @@ class GroupChatConsumer(JsonWebsocketConsumer):
                 "has_more": group_messages_count > 50,
             }
         )
+        self.send_members()
     
     def receive_json(self, content, **kwargs):
         message_type = content['type']
+        
         if message_type == "add_member":
             user = User.objects.filter(username=content['name'])[0]
             self.conversation.members.add(user.id)
+            self.send_members()
             
         elif message_type == "remove_member":
             user = User.objects.filter(username=content['name'])[0]
             self.conversation.members.remove(user.id)
+            self.send_members()
             
         elif message_type == "chat_message":
             message = GroupMessage.objects.create(
@@ -163,7 +178,7 @@ class GroupChatConsumer(JsonWebsocketConsumer):
                 content = content["message"],
                 group_conversation = self.conversation
             )
-            
+            message.read.add(self.user)
             async_to_sync(self.channel_layer.group_send)(
                 self.conversation_name,
                 {
