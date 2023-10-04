@@ -85,7 +85,7 @@ class GroupMessage(models.Model):
     read = models.ManyToManyField(to=User, blank=True)
     
     def __str__(self) -> str:
-        return f"Group conversation with {self.from_user} : {self.content} [{self.timestamp}]"
+        return f"Group conversation {self.group_conversation} message from {self.from_user} : {self.content} [{self.timestamp}]"
     
     def read_message(self, user):
         if not self.get_read_status(user):
