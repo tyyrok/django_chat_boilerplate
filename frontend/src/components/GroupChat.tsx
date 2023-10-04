@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { AuthContext } from "../contexts/AuthContext";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { GroupMessageModel } from "../models/GroupMessage";
 import { GroupMessage } from "./GroupMessage";
 import { GroupConversationModel } from "../models/GroupConversation";
@@ -61,6 +61,11 @@ export function GroupChat() {
     function timeoutFunction() {
         setMeTyping(false);
         sendJsonMessage({ type: "typing", typing: false });
+    }
+
+    function createConversationName(username: string) {
+        const namesAlph = [user?.username, username].sort();
+        return `${namesAlph[0]}__${namesAlph[1]}`;
     }
 
     function onType() {
@@ -218,7 +223,6 @@ export function GroupChat() {
                 }
             }
         );
-        console.log(apiRes.status);
         if (apiRes.status === 200) {
             const data: {
                 count: number;
@@ -226,7 +230,6 @@ export function GroupChat() {
                 previous: string | null; // URL
                 results: GroupMessageModel[];
             } = await apiRes.json();
-            console.log(data);
             setHasMoreMessages(data.next !== null);
             setPage(page + 1);
             setMessageHistory((prev: GroupMessageModel[]) => prev.concat(data.results));
@@ -234,6 +237,9 @@ export function GroupChat() {
     }
     useEffect(() => {
         async function fetchConversation() {
+            if (groupConversationName === 'new') {
+                return
+            }
             const apiRes = await fetch(`http://127.0.0.1:8000/api/group_conversations/${groupConversationName}/`, {
                 method: "GET",
                 headers: {
@@ -380,20 +386,30 @@ export function GroupChat() {
                     <p className="mt-2">Online:</p>
                     {participants.filter((u) => u != user?.username)
                         .map((u) => (
-                            <div key={u+3} className="py1 text-green-600">
-                                {u}
-                            </div>
+                            <Link 
+                                key={u + 5}
+                                to={`/chats/${createConversationName(u)}`}>
+                                <div key={u + 3} className="py1 text-green-600">
+                                    {u}
+                                </div>
+                            </Link>
                         ))}
                     <p className="mt-2">Offline:</p>
                     {members.filter((u) => {
-                        if (!(participants.some((elem) => elem == u.username))) {
+                        if (!(participants.some((elem) => elem === u.username))) {
                             return u.username
+                        } else {
+                            return null
                         }
                     })
                         .map((u) => (
-                            <div key={u.username + 4} className="py1">
-                                {u.username}
-                            </div>
+                            <Link 
+                                key={u.username + 5}
+                                to={`/chats/${createConversationName(u.username)}`}>
+                                <div key={u.username + 4} className="py1 text-red-600">
+                                    {u.username}
+                                </div>
+                            </Link>
                         ))}
 
                 </div>
