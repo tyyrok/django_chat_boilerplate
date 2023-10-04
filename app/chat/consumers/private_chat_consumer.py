@@ -32,7 +32,10 @@ class ChatConsumer(JsonWebsocketConsumer):
         return json.dumps(content, cls=UUIDEncoder)
         
     def connect(self):
-        self.user = self.scope["user"]
+        try:
+            self.user = self.scope["user"]
+        except KeyError:
+            return self.close()
         if not self.user.is_authenticated:
             return
         self.accept()
@@ -139,7 +142,6 @@ class ChatConsumer(JsonWebsocketConsumer):
         return super().receive_json(content, **kwargs)
     
     def chat_message_echo(self, event):
-        print(event)
         self.send_json(event)
         
     def user_join(self, event):

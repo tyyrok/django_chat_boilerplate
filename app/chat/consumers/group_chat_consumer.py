@@ -135,7 +135,10 @@ class GroupChatConsumer(JsonWebsocketConsumer):
         message_type = content['type']
         
         if message_type == "add_member":
-            user = User.objects.filter(username=content['name'])[0]
+            user = User.objects.filter(username=content['name'])
+            if len(user) == 0:
+                return
+            user = user[0]
             self.conversation.members.add(user.id)
             self.send_members()
             message = GroupMessage.objects.create( # Create message about added member

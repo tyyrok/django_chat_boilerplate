@@ -22,5 +22,13 @@
       "password": "test",
       "username": "test3"
     }
+  },
+  {
+    "model": "auth.user",
+    "pk": 4,
+    "fields": {
+      "password": "test",
+      "username": "test4"
+    }
   }
 ]
