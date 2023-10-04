@@ -38,7 +38,7 @@ class ConversationViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     
     def get_queryset(self):
         queryset = Conversation.objects.filter(
-            name__contains=self.request.user.username
+            name__regex=fr"^({self.request.user.username}__)|(^.+__{self.request.user.username}$)"
         )
         return queryset
     
@@ -55,7 +55,7 @@ class MessageViewSet(ListModelMixin, GenericViewSet):
         conversation_name = self.request.GET.get("conversation")
         queryset = (
             Message.objects.filter(
-                conversation__name__contains=self.request.user.username,
+                conversation__name__regex=fr"^({self.request.user.username}__)|(^.+__{self.request.user.username}$)"
             )
             .filter(conversation__name=conversation_name)
             .order_by("-timestamp")
@@ -87,9 +87,10 @@ class GroupMessageViewSet(ListModelMixin, GenericViewSet):
         group_conversation_name = self.request.GET.get("group_conversation")
         queryset = (
             GroupMessage.objects.filter(
-                group_conversation__name__contains=self.request.user.username,
+                group_conversation__name=group_conversation_name,
                 group_conversation__members=self.request.user,
             )
+            .order_by('-timestamp')
         )
         return queryset
 

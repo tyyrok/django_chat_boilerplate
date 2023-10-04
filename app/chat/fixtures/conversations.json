@@ -1,0 +1,18 @@
+[
+    {
+        "model": "chat.conversation",
+        "pk": "34b1fe0c-cbd6-4f9a-aea7-02d53c84c894",
+        "fields": {
+            "name": "test__test2",
+            "online": []
+        }
+    },
+    {
+        "model": "chat.conversation",
+        "pk": "c2c280b2-4cf9-4bb7-bc9d-b8ae9c7e7d97",
+        "fields": {
+            "name": "test3__tes2",
+            "online": []
+        }
+    }
+]

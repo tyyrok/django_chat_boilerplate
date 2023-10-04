@@ -1,0 +1,49 @@
+[
+    {
+        "model": "chat.message",
+        "pk": "08cd297c-ba0c-485a-97c0-1585a9519218",
+        "fields": {
+            "conversation": "34b1fe0c-cbd6-4f9a-aea7-02d53c84c894",
+            "from_user": 2,
+            "to_user": 1,
+            "content": "Hi",
+            "timestamp": "2023-10-04T05:42:37.943Z",
+            "read": true
+        }
+    },{
+        "model": "chat.message",
+        "pk": "650169d4-4da3-44bb-8fc0-c7bb5a7a3087",
+        "fields": {
+            "conversation": "34b1fe0c-cbd6-4f9a-aea7-02d53c84c894",
+            "from_user": 2,
+            "to_user": 1,
+            "content": "Are you here?",
+            "timestamp": "2023-10-04T05:42:39.131Z",
+            "read": true
+        }
+    },
+    {
+        "model": "chat.message",
+        "pk": "776890fb-0f15-4c59-90c3-88fbc3adb2f0",
+        "fields": {
+            "conversation": "34b1fe0c-cbd6-4f9a-aea7-02d53c84c894",
+            "from_user": 1,
+            "to_user": 2,
+            "content": "Hi",
+            "timestamp": "2023-10-03T10:12:49.162Z",
+            "read": false
+        }
+    },
+    {
+        "model": "chat.message",
+        "pk": "c2c280b2-4cf9-4bb7-bc9d-b8ae9c7e7d97",
+        "fields": {
+            "conversation": "c2c280b2-4cf9-4bb7-bc9d-b8ae9c7e7d97",
+            "from_user": 2,
+            "to_user": 3,
+            "content": "Hi, Tom!",
+            "timestamp": "2023-10-04T05:42:37.512Z",
+            "read": false
+        }
+    }
+]

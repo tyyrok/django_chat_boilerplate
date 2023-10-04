@@ -1,0 +1,33 @@
+[
+    {
+        "model": "chat.groupconversation",
+        "pk": "43d80639-a10d-4b46-b872-b561c0c4b7b2",
+        "fields": {
+            "name": "group_chat_with__test__1",
+            "admin": 1,
+            "online": [
+                1
+            ],
+            "members": [
+                1,
+                2,
+                3
+            ]
+        }
+    },
+    {
+        "model": "chat.groupconversation",
+        "pk": "00d80639-a10d-4b46-b872-b561c0c4b7b2",
+        "fields": {
+            "name": "group_chat_with__test2__1",
+            "admin": 2,
+            "online": [
+                2
+            ],
+            "members": [
+                2,
+                3
+            ]
+        }
+    }
+]
