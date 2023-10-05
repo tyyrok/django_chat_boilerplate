@@ -21,6 +21,7 @@ class AuthWebsocketCommunicator(WebsocketCommunicator):
 class ChatTest(TestCase):
     fixtures = ['users.json', 'conversations.json', 'messages.json', 
                 'group_conversations.json', 'group_messages.json']
+    conversation_name = "test__test2"
     
     @classmethod
     def setUpTestData(cls):
@@ -31,7 +32,7 @@ class ChatTest(TestCase):
 
         communicator = AuthWebsocketCommunicator(
             application=ChatConsumer.as_asgi(),
-            path='/chats/test__test2/'
+            path=f'/chats/{self.conversation_name}/'
         )
         connected, subprotocol = await communicator.connect()
         assert not connected
@@ -52,14 +53,14 @@ class ChatTest(TestCase):
         await communicator.disconnect()
     
     async def test_3_chat_consumer_send_message(self):
-        conversation_name = "test__test2"
+        
         test_message = "Test message!"
         communicator = AuthWebsocketCommunicator(
             application=ChatConsumer.as_asgi(),
-            path=f'/chats/{conversation_name}/',
+            path=f'/chats/{self.conversation_name}/',
             user=self.token.user
         )
-        communicator.scope['url_route'] = {'kwargs':{"conversation_name": conversation_name}}
+        communicator.scope['url_route'] = {'kwargs':{"conversation_name": self.conversation_name}}
         connected, subprotocol = await communicator.connect()
         assert connected
         
@@ -93,14 +94,18 @@ class GroupChatTest(TestCase):
     def setUpTestData(cls):
         user = User.objects.all()[0]
         cls.token = Token.objects.create(user=user)
-    
-    async def test_1_group_chat_consumer_create_new_chat(self):
+        
+    def create_communicator(self, group_name=group_conversation_name):
         communicator = AuthWebsocketCommunicator(
             application=GroupChatConsumer.as_asgi(),
-            path=f'/group_chats/{self.group_conversation_name_new}/',
+            path=f'/group_chats/{group_name}/',
             user=self.token.user
         )
-        communicator.scope['url_route'] = {'kwargs':{"group_chat_name": self.group_conversation_name_new}}
+        communicator.scope['url_route'] = {'kwargs':{"group_chat_name": group_name}}
+        return communicator
+    
+    async def test_1_group_chat_consumer_create_new_chat(self):
+        communicator = self.create_communicator(group_name=self.group_conversation_name_new)
         connected, subprotocol = await communicator.connect()
         assert connected
         
@@ -111,12 +116,7 @@ class GroupChatTest(TestCase):
         await communicator.disconnect()
         
     async def test_2_group_chat_consumer_add_new_member(self):
-        communicator = AuthWebsocketCommunicator(
-            application=GroupChatConsumer.as_asgi(),
-            path=f'/group_chats/{self.group_conversation_name}/',
-            user=self.token.user
-        )
-        communicator.scope['url_route'] = {'kwargs':{"group_chat_name": self.group_conversation_name}}
+        communicator = self.create_communicator()
         connected, subprotocol = await communicator.connect()
         assert connected
         
@@ -140,12 +140,7 @@ class GroupChatTest(TestCase):
         await communicator.disconnect()
         
     async def test_3_group_chat_consumer_remove_member(self):
-        communicator = AuthWebsocketCommunicator(
-            application=GroupChatConsumer.as_asgi(),
-            path=f'/group_chats/{self.group_conversation_name}/',
-            user=self.token.user
-        )
-        communicator.scope['url_route'] = {'kwargs':{"group_chat_name": self.group_conversation_name}}
+        communicator = self.create_communicator()
         connected, subprotocol = await communicator.connect()
         assert connected
         
@@ -169,13 +164,7 @@ class GroupChatTest(TestCase):
         await communicator.disconnect()
         
     async def test_4_group_chat_consumer_send_message(self):
-        
-        communicator = AuthWebsocketCommunicator(
-            application=GroupChatConsumer.as_asgi(),
-            path=f'/group_chats/{self.group_conversation_name}/',
-            user=self.token.user
-        )
-        communicator.scope['url_route'] = {'kwargs':{"group_chat_name": self.group_conversation_name}}
+        communicator = self.create_communicator()
         connected, subprotocol = await communicator.connect()
         assert connected
         
@@ -194,6 +183,39 @@ class GroupChatTest(TestCase):
         assert self.test_message in response['message']['content']
 
         await communicator.disconnect()
+        
+class NotificationTest(TestCase):
+    fixtures = ['users.json', 'conversations.json', 'messages.json', 
+                'group_conversations.json', 'group_messages.json']
+    group_notification_name = "test__notifications"
+
+    @classmethod
+    def setUpTestData(cls):
+        user = User.objects.all()[0]
+        cls.token = Token.objects.create(user=user)
+        
+    def create_communicator(self, group_name=group_notification_name):
+        communicator = AuthWebsocketCommunicator(
+            application=NotificationConsumer.as_asgi(),
+            path=f'/notifications/{group_name}/',
+            user=self.token.user
+        )
+        communicator.scope['url_route'] = {'kwargs':{"group_chat_name": group_name}}
+        return communicator
+        
+    async def test_1_notification_consumer(self):
+        communicator = self.create_communicator()
+        connected, subprotocol = await communicator.connect()
+        assert connected
+        
+        response = await communicator.receive_json_from()
+        assert 'unread_count' in response.values()
+        
+        response = await communicator.receive_json_from()
+        assert 'unread_group_count' in response.values()
+        
+        await communicator.disconnect()
+        
 
 class TestApi(APITestCase):
     fixtures = ['users.json', 'conversations.json', 'messages.json', 
